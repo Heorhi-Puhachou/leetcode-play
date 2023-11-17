@@ -1,4 +1,5 @@
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class LongestSubstringWithoutRepeatingCharacters {
 
@@ -47,9 +48,14 @@ public class LongestSubstringWithoutRepeatingCharacters {
 
         Map<Integer, Integer> elementLastIndex = new HashMap<>();
         for (int element : input) {
-            elementLastIndex.put(element, element);
+            elementLastIndex.put(element, null);
         }
         int uniqueElementsCount = elementLastIndex.size();
+
+        if(input.length==uniqueElementsCount){
+            return uniqueElementsCount;
+        }
+
         elementLastIndex.clear();
 
         for (int i = 0; i < input.length; i++) {
@@ -69,6 +75,6 @@ public class LongestSubstringWithoutRepeatingCharacters {
                 elementLastIndex.put(element, i);
             }
         }
-        return Math.max(currentResult, maxResult);
+        return (currentResult > maxResult) ? currentResult : maxResult;
     }
 }

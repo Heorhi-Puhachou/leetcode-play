@@ -1,7 +1,12 @@
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 public class LongestSubstringWithoutRepeatingCharacters {
 
     public static void main(String[] args) {
-        System.out.println(lengthOfLongestSubstring);
+        System.out.println(lengthOfLongestSubstring("dvdf"));
     }
 
     /**
@@ -38,7 +43,38 @@ public class LongestSubstringWithoutRepeatingCharacters {
      * s consists of English letters, digits, symbols and spaces.
      */
 
-    public int lengthOfLongestSubstring(String s) {
-        return 0;
+    public static int lengthOfLongestSubstring(String s) {
+        char [] input = s.toCharArray();
+        int maxResult = 0;
+        int currentResult = 0;
+        Set<String> uniqueElements = new HashSet<>();
+        Map<String, Integer> elementLastIndex = new HashMap<>();
+        for (int i = 0; i < s.length(); i++) {
+            String element = ""+input[i];
+            int oldSize = uniqueElements.size();
+            uniqueElements.add(element);
+            int newSize = uniqueElements.size();
+            if (newSize > oldSize) {
+                currentResult++;
+                elementLastIndex.put(element, i);
+            } else {
+                if (currentResult > maxResult) {
+                    maxResult = currentResult;
+                }
+                int newStart = elementLastIndex.get(element);
+                elementLastIndex.put(element, i);
+                i=newStart+1;
+                uniqueElements = new HashSet<>();
+                uniqueElements.add(""+input[i]);
+                currentResult = 1;
+            }
+
+            if (i == s.length() - 1) {
+                if (currentResult > maxResult) {
+                    maxResult = currentResult;
+                }
+            }
+        }
+        return maxResult;
     }
 }

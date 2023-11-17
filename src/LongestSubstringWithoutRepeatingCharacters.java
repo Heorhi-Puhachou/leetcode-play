@@ -1,12 +1,9 @@
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class LongestSubstringWithoutRepeatingCharacters {
 
     public static void main(String[] args) {
-        System.out.println(lengthOfLongestSubstring("dvdf"));
+        System.out.println(lengthOfLongestSubstring("abcabcbb"));
     }
 
     /**
@@ -44,37 +41,34 @@ public class LongestSubstringWithoutRepeatingCharacters {
      */
 
     public static int lengthOfLongestSubstring(String s) {
-        char [] input = s.toCharArray();
+        char[] input = s.toCharArray();
         int maxResult = 0;
         int currentResult = 0;
-        Set<String> uniqueElements = new HashSet<>();
-        Map<String, Integer> elementLastIndex = new HashMap<>();
-        for (int i = 0; i < s.length(); i++) {
-            String element = ""+input[i];
-            int oldSize = uniqueElements.size();
-            uniqueElements.add(element);
-            int newSize = uniqueElements.size();
-            if (newSize > oldSize) {
+
+        Map<Integer, Integer> elementLastIndex = new HashMap<>();
+        for (int element : input) {
+            elementLastIndex.put(element, element);
+        }
+        int uniqueElementsCount = elementLastIndex.size();
+        elementLastIndex.clear();
+
+        for (int i = 0; i < input.length; i++) {
+            int element = input[i];
+            if (elementLastIndex.containsKey(element)) {
+                if (currentResult > maxResult) {
+                    if (uniqueElementsCount == currentResult) {
+                        return currentResult;
+                    }
+                    maxResult = currentResult;
+                }
+                i = elementLastIndex.get(element);
+                elementLastIndex.clear();
+                currentResult = 0;
+            } else {
                 currentResult++;
                 elementLastIndex.put(element, i);
-            } else {
-                if (currentResult > maxResult) {
-                    maxResult = currentResult;
-                }
-                int newStart = elementLastIndex.get(element);
-                elementLastIndex.put(element, i);
-                i=newStart+1;
-                uniqueElements = new HashSet<>();
-                uniqueElements.add(""+input[i]);
-                currentResult = 1;
-            }
-
-            if (i == s.length() - 1) {
-                if (currentResult > maxResult) {
-                    maxResult = currentResult;
-                }
             }
         }
-        return maxResult;
+        return Math.max(currentResult, maxResult);
     }
 }

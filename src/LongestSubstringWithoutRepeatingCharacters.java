@@ -42,36 +42,42 @@ public class LongestSubstringWithoutRepeatingCharacters {
      */
 
     public static int lengthOfLongestSubstring(String s) {
-        char[] input = s.toCharArray();
-        int maxResult = 0;
-        int currentResult = 0;
+        char[] charInput = s.toCharArray();
 
+        // find quantity of unique elements
         Map<Integer, Integer> elementLastIndex = new HashMap<>();
-        for (int element : input) {
+        for (int element : charInput) {
+            // use HashMap in this way because it will be reused later
             elementLastIndex.put(element, null);
         }
         int uniqueElementsCount = elementLastIndex.size();
 
-        if(input.length==uniqueElementsCount){
+        // stop here if charInput contains only unique elements
+        if (charInput.length == uniqueElementsCount) {
             return uniqueElementsCount;
         }
 
+        // clear HashMap before use in more traditional way
         elementLastIndex.clear();
 
-        for (int i = 0; i < input.length; i++) {
-            int element = input[i];
+        int maxResult = 0;
+        int currentResult = 0;
+
+        for (int i = 0; i < charInput.length; i++) {
+            int element = charInput[i];
             if (elementLastIndex.containsKey(element)) {
                 if (currentResult > maxResult) {
-                    if (uniqueElementsCount == currentResult) {
-                        return currentResult;
-                    }
                     maxResult = currentResult;
                 }
+                //start search again without repeated element (from next one)
                 i = elementLastIndex.get(element);
                 elementLastIndex.clear();
                 currentResult = 0;
             } else {
-                currentResult++;
+                // stop if we found all unique elements
+                if (uniqueElementsCount == ++currentResult) {
+                    return currentResult;
+                }
                 elementLastIndex.put(element, i);
             }
         }

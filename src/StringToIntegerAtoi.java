@@ -7,13 +7,14 @@ public class StringToIntegerAtoi {
         //System.out.println((new StringToIntegerAtoi()).myAtoi("010"));
         //System.out.println((new StringToIntegerAtoi()).myAtoi("+-110"));
         //System.out.println((new StringToIntegerAtoi()).myAtoi("   +0 123"));
-        System.out.println((new StringToIntegerAtoi()).myAtoi("2147483646"));
-        System.out.println((new StringToIntegerAtoi()).myAtoi("-91283472332"));
-        System.out.println((new StringToIntegerAtoi()).myAtoi("2147483648"));
-        System.out.println((new StringToIntegerAtoi()).myAtoi("-2147483647"));
-        System.out.println((new StringToIntegerAtoi()).myAtoi("-13+8"));
-        System.out.println((new StringToIntegerAtoi()).myAtoi("  +  413"));
-        System.out.println((new StringToIntegerAtoi()).myAtoi("    -88827   5655  U"));
+//        System.out.println((new StringToIntegerAtoi()).myAtoi("2147483646"));
+//        System.out.println((new StringToIntegerAtoi()).myAtoi("-91283472332"));
+//        System.out.println((new StringToIntegerAtoi()).myAtoi("2147483648"));
+//        System.out.println((new StringToIntegerAtoi()).myAtoi("-2147483647"));
+//        System.out.println((new StringToIntegerAtoi()).myAtoi("-13+8"));
+//        System.out.println((new StringToIntegerAtoi()).myAtoi("  +  413"));
+//        System.out.println((new StringToIntegerAtoi()).myAtoi("    -88827   5655  U"));
+        System.out.println((new StringToIntegerAtoi()).myAtoi("-2147483649"));
     }
 
     /**
@@ -87,7 +88,11 @@ public class StringToIntegerAtoi {
 
 
     public int myAtoi(String s) {
+        char[] toCompare = {'2', '1', '4', '7', '4', '8', '3', '6', '4', '7'};
+
         boolean isNegative = false;
+        boolean out = false;
+        boolean checkFinished = false;
         boolean plusPresented = false;
         boolean previousZero = false;
         char[] num = {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'};
@@ -98,7 +103,7 @@ public class StringToIntegerAtoi {
         int index = 0;
         while (index < chars.length) {
             char symbol = chars[index];
-            if (isSpace(symbol)) {
+            if (symbol == ' ') {
                 if (numIndex > 0) {
                     break;
                 }
@@ -108,10 +113,10 @@ public class StringToIntegerAtoi {
                 index++;
                 continue;
             }
-            if (previousZero && !isNumber(symbol)) {
+            if (previousZero && !(47 < symbol && symbol < 58)) {
                 return 0;
             }
-            if (isPlus(symbol)) {
+            if (symbol == '+') {
                 if (numIndex > 0) {
                     break;
                 }
@@ -119,35 +124,37 @@ public class StringToIntegerAtoi {
                     return 0;
                 }
                 plusPresented = true;
+                index++;
+                continue;
             }
 
-            if (isZero(symbol) && numIndex == 0) {
+            if (48 == symbol && numIndex == 0) {
                 previousZero = true;
                 index++;
                 continue;
             }
-            if (isLetter(symbol)) {
+            if ('a' <= symbol && symbol <= 'z') {
                 break;
             }
-            if (numIndex == 0 && isDot(symbol)) {
+            if (numIndex == 0 && symbol == '.') {
                 return 0;
             }
-            if (numIndex > 0 && !isNumber(symbol)) {
+            if (numIndex > 0 && !(47 < symbol && symbol < 58)) {
                 break;
             }
 
-            if (isMinus(symbol)) {
-                if (numIndex > 0) {
-                    break;
-                }
+            if (symbol == '-') {
                 if (isNegative || plusPresented) {
                     return 0;
                 }
                 isNegative = true;
+                toCompare[9] = '8';
+                index++;
+                continue;
 
             }
 
-            if (isNumber(symbol)) {
+            if (47 < symbol && symbol < 58) {
                 previousZero = false;
                 if (numIndex > 9 && !isNegative) {
                     return 2147483647;
@@ -156,12 +163,19 @@ public class StringToIntegerAtoi {
                     return -2147483648;
                 }
                 num[numIndex] = symbol;
+                if (!checkFinished && num[numIndex] < toCompare[numIndex]) {
+                    checkFinished = true;
+                }
+                if (!checkFinished && !out && num[numIndex] > toCompare[numIndex]) {
+                    out = true;
+                }
                 numIndex++;
+                index++;
             }
-            index++;
+
         }
 
-        if (numIndex == 10 && outOfRange(num, isNegative)) {
+        if (numIndex == 10 && out) {
             if (isNegative) {
                 return -2147483648;
             } else {
@@ -181,60 +195,5 @@ public class StringToIntegerAtoi {
             return result * -1;
         }
         return result;
-    }
-
-    public boolean isZero(char symbol) {
-        return 48 == symbol;
-    }
-
-    public boolean isNumber(char symbol) {
-        return 47 < symbol && symbol < 58;
-    }
-
-    public boolean isLetter(char symbol) {
-        return 'a' <= symbol && symbol <= 'z';
-    }
-
-    public boolean isDot(char symbol) {
-        return '.' == symbol;
-    }
-
-    public boolean isMinus(char symbol) {
-        return symbol == '-';
-    }
-
-    public boolean isPlus(char symbol) {
-        return symbol == '+';
-    }
-
-    public boolean isSpace(char symbol) {
-        return symbol == ' ';
-    }
-
-    private boolean outOfRange(char[] input, boolean isNegative) {
-        char toCompare[];
-        char[] minInt = {'2', '1', '4', '7', '4', '8', '3', '6', '4', '8'};
-        char[] maxInt = {'2', '1', '4', '7', '4', '8', '3', '6', '4', '7'};
-        if (isNegative) {
-            toCompare = minInt;
-        } else {
-            toCompare = maxInt;
-
-        }
-        if (input.length > toCompare.length) {
-            return true;
-        }
-        if (input.length < toCompare.length) {
-            return false;
-        }
-        for (int index = 0; index < 10; index++) {
-            if (input[index] > toCompare[index]) {
-                return true;
-            }
-            if (input[index] < toCompare[index]) {
-                return false;
-            }
-        }
-        return false;
     }
 }

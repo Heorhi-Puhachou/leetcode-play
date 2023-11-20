@@ -1,10 +1,7 @@
-import java.util.HashMap;
-import java.util.Map;
-
 public class StringToIntegerAtoi {
 
     public static void main(String[] args) {
-        System.out.println(myAtoi("123"));
+        System.out.println(myAtoi("1095502006p8"));
     }
 
     /**
@@ -77,9 +74,85 @@ public class StringToIntegerAtoi {
      */
 
     public static int myAtoi(String s) {
-        s.trim().toCharArray();
-        char[] maxInt = {2,1,4,7,4,8,3,6,4,7};
-        char[] minInt = {2,1,4,7,4,8,3,6,4,8};
-        return 0;
+        if (s.trim().isEmpty()
+                || !s.matches(".*\\d.*")) {
+            return 0;
+        }
+        String[] strings = s.trim().split("[ a-z]+");
+        s = strings[0];
+
+        if (!s.matches(".*\\d.*")
+                || s.trim().substring(0, 1).replaceAll("[^\\d+.-]", "").isEmpty()
+                || s.contains("-+")
+                || s.contains("+-")
+                || s.contains("0+")
+                || s.contains("0-")) {
+            return 0;
+        }
+
+        boolean isNegative = s.startsWith("-");
+        char[] charArray;
+        int dotIndex = s.indexOf(".");
+
+        String[] secondSplit = s.split("[-+]");
+        if (secondSplit[0].isEmpty()) {
+            s = secondSplit[1];
+        } else {
+            s = secondSplit[0];
+        }
+        int lastIndex = dotIndex == -1 ? s.length() : dotIndex;
+
+        charArray = s.substring(0, lastIndex).trim().toCharArray();
+        int firstNonZeroIndex = 0;
+        for (; firstNonZeroIndex < charArray.length; firstNonZeroIndex++) {
+            if (charArray[firstNonZeroIndex] != '0') {
+                break;
+            }
+        }
+
+        if (isNegative && outOfRange(charArray, firstNonZeroIndex, isNegative)) {
+            return -2147483648;
+        } else if (outOfRange(charArray, firstNonZeroIndex, isNegative)) {
+            return 2147483647;
+        }
+
+        int result = 0;
+        for (int index = 0; index < charArray.length - firstNonZeroIndex; index++) {
+            int arrayValue = charArray[charArray.length - index - 1] - 48;
+            int valuePow = (int) Math.pow(10, index);
+            int finalValue = arrayValue * valuePow;
+            result = result + finalValue;
+        }
+        if (isNegative) {
+            return result * -1;
+        }
+        return result;
+    }
+
+    private static boolean outOfRange(char[] input, int firstNonZeroIndex, boolean isNegative) {
+        char toCompare[];
+        char[] minInt = {'2', '1', '4', '7', '4', '8', '3', '6', '4', '8'};
+        char[] maxInt = {'2', '1', '4', '7', '4', '8', '3', '6', '4', '7'};
+        if (isNegative) {
+            toCompare = minInt;
+        } else {
+            toCompare = maxInt;
+
+        }
+        if (input.length - firstNonZeroIndex > toCompare.length) {
+            return true;
+        }
+        if (input.length - firstNonZeroIndex < toCompare.length) {
+            return false;
+        }
+        for (int index = 0; index < 10; index++) {
+            if (input[index] > toCompare[index]) {
+                return true;
+            }
+            if (input[index] < toCompare[index]) {
+                return false;
+            }
+        }
+        return false;
     }
 }

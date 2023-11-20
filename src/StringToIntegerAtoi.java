@@ -1,7 +1,19 @@
 public class StringToIntegerAtoi {
 
     public static void main(String[] args) {
-        System.out.println(myAtoi("1095502006p8"));
+        //System.out.println((new StringToIntegerAtoi()).isNumber('0'));
+        //System.out.println((new StringToIntegerAtoi()).isNumber('9'));
+        //System.out.println((new StringToIntegerAtoi()).myAtoi("-000000000000001"));
+        //System.out.println((new StringToIntegerAtoi()).myAtoi("010"));
+        //System.out.println((new StringToIntegerAtoi()).myAtoi("+-110"));
+        //System.out.println((new StringToIntegerAtoi()).myAtoi("   +0 123"));
+        System.out.println((new StringToIntegerAtoi()).myAtoi("2147483646"));
+        System.out.println((new StringToIntegerAtoi()).myAtoi("-91283472332"));
+        System.out.println((new StringToIntegerAtoi()).myAtoi("2147483648"));
+        System.out.println((new StringToIntegerAtoi()).myAtoi("-2147483647"));
+        System.out.println((new StringToIntegerAtoi()).myAtoi("-13+8"));
+        System.out.println((new StringToIntegerAtoi()).myAtoi("  +  413"));
+        System.out.println((new StringToIntegerAtoi()).myAtoi("    -88827   5655  U"));
     }
 
     /**
@@ -73,53 +85,95 @@ public class StringToIntegerAtoi {
      * s consists of English letters (lower-case and upper-case), digits (0-9), ' ', '+', '-', and '.'.
      */
 
-    public static int myAtoi(String s) {
-        if (s.trim().isEmpty()
-                || !s.matches(".*\\d.*")) {
-            return 0;
-        }
-        String[] strings = s.trim().split("[ a-z]+");
-        s = strings[0];
 
-        if (!s.matches(".*\\d.*")
-                || s.trim().substring(0, 1).replaceAll("[^\\d+.-]", "").isEmpty()
-                || s.contains("-+")
-                || s.contains("+-")
-                || s.contains("0+")
-                || s.contains("0-")) {
-            return 0;
-        }
+    public int myAtoi(String s) {
+        boolean isNegative = false;
+        boolean plusPresented = false;
+        boolean previousZero = false;
+        char[] num = {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'};
+        int numIndex = 0;
 
-        boolean isNegative = s.startsWith("-");
-        char[] charArray;
-        int dotIndex = s.indexOf(".");
+        char[] chars = s.toCharArray();
 
-        String[] secondSplit = s.split("[-+]");
-        if (secondSplit[0].isEmpty()) {
-            s = secondSplit[1];
-        } else {
-            s = secondSplit[0];
-        }
-        int lastIndex = dotIndex == -1 ? s.length() : dotIndex;
+        int index = 0;
+        while (index < chars.length) {
+            char symbol = chars[index];
+            if (isSpace(symbol)) {
+                if (numIndex > 0) {
+                    break;
+                }
+                if (plusPresented || isNegative || previousZero) {
+                    return 0;
+                }
+                index++;
+                continue;
+            }
+            if (previousZero && !isNumber(symbol)) {
+                return 0;
+            }
+            if (isPlus(symbol)) {
+                if (numIndex > 0) {
+                    break;
+                }
+                if (plusPresented || isNegative) {
+                    return 0;
+                }
+                plusPresented = true;
+            }
 
-        charArray = s.substring(0, lastIndex).trim().toCharArray();
-        int firstNonZeroIndex = 0;
-        for (; firstNonZeroIndex < charArray.length; firstNonZeroIndex++) {
-            if (charArray[firstNonZeroIndex] != '0') {
+            if (isZero(symbol) && numIndex == 0) {
+                previousZero = true;
+                index++;
+                continue;
+            }
+            if (isLetter(symbol)) {
                 break;
+            }
+            if (numIndex == 0 && isDot(symbol)) {
+                return 0;
+            }
+            if (numIndex > 0 && !isNumber(symbol)) {
+                break;
+            }
+
+            if (isMinus(symbol)) {
+                if (numIndex > 0) {
+                    break;
+                }
+                if (isNegative || plusPresented) {
+                    return 0;
+                }
+                isNegative = true;
+
+            }
+
+            if (isNumber(symbol)) {
+                previousZero = false;
+                if (numIndex > 9 && !isNegative) {
+                    return 2147483647;
+                }
+                if (numIndex > 9) {
+                    return -2147483648;
+                }
+                num[numIndex] = symbol;
+                numIndex++;
+            }
+            index++;
+        }
+
+        if (numIndex == 10 && outOfRange(num, isNegative)) {
+            if (isNegative) {
+                return -2147483648;
+            } else {
+                return 2147483647;
             }
         }
 
-        if (isNegative && outOfRange(charArray, firstNonZeroIndex, isNegative)) {
-            return -2147483648;
-        } else if (outOfRange(charArray, firstNonZeroIndex, isNegative)) {
-            return 2147483647;
-        }
 
         int result = 0;
-        for (int index = 0; index < charArray.length - firstNonZeroIndex; index++) {
-            int arrayValue = charArray[charArray.length - index - 1] - 48;
-            int valuePow = (int) Math.pow(10, index);
+        for (int i = 0; i < numIndex; i++) {
+            int arrayValue = num[i] - 48;
+            int valuePow = (int) Math.pow(10, numIndex - 1 - i);
             int finalValue = arrayValue * valuePow;
             result = result + finalValue;
         }
@@ -129,7 +183,35 @@ public class StringToIntegerAtoi {
         return result;
     }
 
-    private static boolean outOfRange(char[] input, int firstNonZeroIndex, boolean isNegative) {
+    public boolean isZero(char symbol) {
+        return 48 == symbol;
+    }
+
+    public boolean isNumber(char symbol) {
+        return 47 < symbol && symbol < 58;
+    }
+
+    public boolean isLetter(char symbol) {
+        return 'a' <= symbol && symbol <= 'z';
+    }
+
+    public boolean isDot(char symbol) {
+        return '.' == symbol;
+    }
+
+    public boolean isMinus(char symbol) {
+        return symbol == '-';
+    }
+
+    public boolean isPlus(char symbol) {
+        return symbol == '+';
+    }
+
+    public boolean isSpace(char symbol) {
+        return symbol == ' ';
+    }
+
+    private boolean outOfRange(char[] input, boolean isNegative) {
         char toCompare[];
         char[] minInt = {'2', '1', '4', '7', '4', '8', '3', '6', '4', '8'};
         char[] maxInt = {'2', '1', '4', '7', '4', '8', '3', '6', '4', '7'};
@@ -139,10 +221,10 @@ public class StringToIntegerAtoi {
             toCompare = maxInt;
 
         }
-        if (input.length - firstNonZeroIndex > toCompare.length) {
+        if (input.length > toCompare.length) {
             return true;
         }
-        if (input.length - firstNonZeroIndex < toCompare.length) {
+        if (input.length < toCompare.length) {
             return false;
         }
         for (int index = 0; index < 10; index++) {

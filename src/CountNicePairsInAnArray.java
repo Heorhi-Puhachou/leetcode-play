@@ -37,7 +37,7 @@ public class CountNicePairsInAnArray {
      */
 
     public int countNicePairs(int[] nums) {
-        int result = 0;
+        long result = 0;
         Map<Integer, Integer> pairs = new HashMap<>();
         int[] altNums = new int[nums.length];
         for (int i = 0; i < nums.length; i++) {
@@ -51,8 +51,11 @@ public class CountNicePairsInAnArray {
         for (Integer integer : pairs.values()) {
             result = result + calculatePairs(integer);
         }
-
-        return result;
+        //Since that number can be too large, return it modulo 109 + 7.
+        if (result >= 1000000000) {
+            result = result - 1000000007;
+        }
+        return (int) result;
     }
 
     public int calculatePairs(int nodesCount) {

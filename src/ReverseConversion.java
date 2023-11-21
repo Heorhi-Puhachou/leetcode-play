@@ -3,7 +3,8 @@ import java.util.Arrays;
 public class ReverseConversion {
     public static void main(String... args) {
         //System.out.println((new ReverseConversion()).convert("PAYPALISHIRING", 3));
-        System.out.println((new ReverseConversion()).convert("PAYPALISHIRING", 4));
+        //System.out.println((new ReverseConversion()).convert("A", 1));
+        System.out.println((new ReverseConversion()).convert("AB", 1));
     }
 
     /**
@@ -70,42 +71,35 @@ public class ReverseConversion {
      */
 
     public String convert(String s, int numRows) {
-
+        if (numRows == 1) {
+            return s;
+        }
         char[] chars = s.toCharArray();
         int magicNumber = numRows + numRows - 2;
-        int arrayLength = ((chars.length - (numRows + 1)) / (numRows - 1)) + 2;
-        char[][] transformed = new char[numRows][arrayLength];
-        String result = "";
-
+        char[] result = new char[chars.length];
+        int resultIndex = 0;
         for (int row = 0; row < numRows; row++) {
+            boolean edge = false;
             int increase1 = magicNumber - row * 2;
             int increase2 = row * 2;
+            if (increase1 == 0 || increase2 == 0) {
+                edge = true;
+            }
+            int increaseSum = increase2 + increase1;
             int increaseIndex = row;
-            int transformedIndex = 0;
             while (increaseIndex < chars.length) {
-                if (increase1 == 0 || increase2 == 0) {
-                    transformed[row][transformedIndex] = chars[increaseIndex];
-                    transformedIndex++;
-                    increaseIndex = increaseIndex + increase1 + increase2;
+                result[resultIndex++] = chars[increaseIndex];
+                if (edge) {
+                    increaseIndex += increaseSum;
                 } else {
-                    transformed[row][transformedIndex] = chars[increaseIndex];
-                    transformedIndex++;
                     increaseIndex = increaseIndex + increase1;
-                    if(increaseIndex < chars.length){
-                        transformed[row][transformedIndex] = chars[increaseIndex];
-                        transformedIndex++;
-                        increaseIndex = increaseIndex + increase2;
+                    if (increaseIndex < chars.length) {
+                        result[resultIndex++] = chars[increaseIndex];
+                        increaseIndex += increase2;
                     }
                 }
             }
-            //result = result+
-
         }
-
-
-        System.out.println(Arrays.deepToString(transformed));
-
-        return "";
-
+        return String.valueOf(result);
     }
 }

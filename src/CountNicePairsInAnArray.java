@@ -38,8 +38,8 @@ public class CountNicePairsInAnArray {
 
     public int countNicePairs(int[] nums) {
         long result = 0;
-        Map<Long, Long> pairs = new HashMap<>();
-        long[] altNums = new long[nums.length];
+        Map<Integer, Integer> pairs = new HashMap<>();
+        int[] altNums = new int[nums.length];
         for (int i = 0; i < nums.length; i++) {
             if (nums[i] < 10) {
                 altNums[i] = 0;
@@ -49,13 +49,10 @@ public class CountNicePairsInAnArray {
             if (pairs.containsKey(altNums[i])) {
                 pairs.put(altNums[i], pairs.get(altNums[i]) + 1);
             } else {
-                pairs.put(altNums[i], 1L);
+                pairs.put(altNums[i], 1);
             }
         }
-        System.out.println("-----");
-        System.out.println(pairs.keySet());
-        System.out.println("-----");
-        for (Long pairElements : pairs.values()) {
+        for (Integer pairElements : pairs.values()) {
             result = result + calculatePairs(pairElements);
         }
         //leetcode bad test (83/84)
@@ -71,7 +68,7 @@ public class CountNicePairsInAnArray {
         return (int) result;
     }
 
-    public long calculatePairs(long nodesCount) {
+    public long calculatePairs(int nodesCount) {
         long result = 0;
         for (; nodesCount > 0; nodesCount--) {
             result = result + (nodesCount - 1);

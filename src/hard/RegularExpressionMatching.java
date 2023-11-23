@@ -45,10 +45,11 @@ public class RegularExpressionMatching {
      * Explanation: ".*" means "zero or more (*) of any character (.)".
      */
     public boolean isMatch(String s, String p) {
+        p = simplifyPattern(p);
         if (p.equals(".*")) {
             return true;
         }
-        return isMatch(s.toCharArray(), simplifyPattern(p).toCharArray(), 0, 0);
+        return isMatch(s.toCharArray(), p.toCharArray(), 0, 0);
     }
 
     public boolean isMatch(char[] string, char[] pattern, int stringStart, int patternStart) {

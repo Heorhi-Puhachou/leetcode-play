@@ -1,10 +1,12 @@
+package medium;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class CountNicePairsInAnArray {
 
     public static void main(String... args) {
-        // System.out.println((new CountNicePairsInAnArray()).isNicePair(413370302, 293999243));
+        // System.out.println((new medium.CountNicePairsInAnArray()).isNicePair(413370302, 293999243));
         int[] a1 = {13, 10, 35, 24, 76};
         int[] a2 = {42, 11, 1, 97};
         int[] a3 = {352171103, 442454244, 42644624, 152727101, 413370302, 293999243};

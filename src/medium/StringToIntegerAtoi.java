@@ -1,19 +1,21 @@
+package medium;
+
 public class StringToIntegerAtoi {
 
     public static void main(String[] args) {
-        //System.out.println((new StringToIntegerAtoi()).isNumber('0'));
-        //System.out.println((new StringToIntegerAtoi()).isNumber('9'));
-        //System.out.println((new StringToIntegerAtoi()).myAtoi("-000000000000001"));
-        //System.out.println((new StringToIntegerAtoi()).myAtoi("010"));
-        //System.out.println((new StringToIntegerAtoi()).myAtoi("+-110"));
-        //System.out.println((new StringToIntegerAtoi()).myAtoi("   +0 123"));
-//        System.out.println((new StringToIntegerAtoi()).myAtoi("2147483646"));
-//        System.out.println((new StringToIntegerAtoi()).myAtoi("-91283472332"));
-//        System.out.println((new StringToIntegerAtoi()).myAtoi("2147483648"));
-//        System.out.println((new StringToIntegerAtoi()).myAtoi("-2147483647"));
-//        System.out.println((new StringToIntegerAtoi()).myAtoi("-13+8"));
-//        System.out.println((new StringToIntegerAtoi()).myAtoi("  +  413"));
-//        System.out.println((new StringToIntegerAtoi()).myAtoi("    -88827   5655  U"));
+        //System.out.println((new medium.StringToIntegerAtoi()).isNumber('0'));
+        //System.out.println((new medium.StringToIntegerAtoi()).isNumber('9'));
+        //System.out.println((new medium.StringToIntegerAtoi()).myAtoi("-000000000000001"));
+        //System.out.println((new medium.StringToIntegerAtoi()).myAtoi("010"));
+        //System.out.println((new medium.StringToIntegerAtoi()).myAtoi("+-110"));
+        //System.out.println((new medium.StringToIntegerAtoi()).myAtoi("   +0 123"));
+//        System.out.println((new medium.StringToIntegerAtoi()).myAtoi("2147483646"));
+//        System.out.println((new medium.StringToIntegerAtoi()).myAtoi("-91283472332"));
+//        System.out.println((new medium.StringToIntegerAtoi()).myAtoi("2147483648"));
+//        System.out.println((new medium.StringToIntegerAtoi()).myAtoi("-2147483647"));
+//        System.out.println((new medium.StringToIntegerAtoi()).myAtoi("-13+8"));
+//        System.out.println((new medium.StringToIntegerAtoi()).myAtoi("  +  413"));
+//        System.out.println((new medium.StringToIntegerAtoi()).myAtoi("    -88827   5655  U"));
         System.out.println((new StringToIntegerAtoi()).myAtoi("-2147483649"));
     }
 

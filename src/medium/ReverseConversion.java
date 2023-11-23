@@ -1,7 +1,9 @@
+package medium;
+
 public class ReverseConversion {
     public static void main(String... args) {
         System.out.println((new ReverseConversion()).convert("PAYPALISHIRING", 3));
-        //System.out.println((new ReverseConversion()).convert("A", 1));
+        //System.out.println((new medium.ReverseConversion()).convert("A", 1));
         System.out.println((new ReverseConversion()).convert("AB", 1));
     }
 

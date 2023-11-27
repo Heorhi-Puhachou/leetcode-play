@@ -53,34 +53,34 @@ public class MergeSortedLists {
      */
 
     public ListNode mergeKLists(ListNode[] lists) {
-        boolean canContinue = true;
         ListNode result = null;
         ListNode currentResultNode = null;
-        while (canContinue) {
+        while (true) {
             Integer min = null;
-            canContinue = false;
+
             int minIndex = -1;
             for (int i = 0; i < lists.length; i++) {
                 if (lists[i] != null) {
                     if (min == null || lists[i].val < min) {
                         min = lists[i].val;
                         minIndex = i;
-
                     }
                 }
             }
             if (min != null) {
-                canContinue = true;
+                ListNode founded = lists[minIndex];
                 lists[minIndex] = lists[minIndex].next;
+                founded.next = null;
                 if (result == null) {
-                    result = new ListNode(min);
+                    result = founded;
                     currentResultNode = result;
                 } else {
-                    currentResultNode.next = new ListNode(min);
+                    currentResultNode.next = founded;
                     currentResultNode = currentResultNode.next;
                 }
+            } else {
+                break;
             }
-
         }
         return result;
     }

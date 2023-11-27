@@ -6,8 +6,8 @@ import java.util.List;
 
 public class SubstringWithConcatenationOfAllWords {
     public static void main(String... args) {
-        String s = "foobarman";
-        String[] words = {"bar", "foo"};
+        String s = "aaa";
+        String[] words = {"a", "a"};
 
         //String s = "goodgoodbestword";
         //String[] words = {"word", "good", "best", "good"};
@@ -63,11 +63,36 @@ public class SubstringWithConcatenationOfAllWords {
         List<Integer> result = new ArrayList<>();
         int wordLength = words[0].length();
         int substringLength = words.length * wordLength;
+        if (substringLength > s.length()) {
+            return result;
+        }
+        char[] sChars = s.toCharArray();
+        boolean previousSuccess = false;
 
-        for (int i = 0; i <= s.length() - substringLength; i++) {
-            String toCheck = s.substring(i, i + substringLength);
-            if (checkSubstring(toCheck, words)) {
-                result.add(i);
+        if (wordLength == 1) {
+            for (int i = 0; i <= s.length() - substringLength; i++) {
+                String toCheck = s.substring(i, i + substringLength);
+                if (previousSuccess) {
+                    if (sChars[i + substringLength - 2] == sChars[i + substringLength - 1]) {
+                        result.add(i);
+                    } else {
+                        previousSuccess = false;
+                    }
+                }
+
+                if (!previousSuccess && checkSubstring(toCheck, words)) {
+                    result.add(i);
+                    previousSuccess = true;
+                } else {
+                    previousSuccess = false;
+                }
+            }
+        } else {
+            for (int i = 0; i <= s.length() - substringLength; i++) {
+                String toCheck = s.substring(i, i + substringLength);
+                if (checkSubstring(toCheck, words)) {
+                    result.add(i);
+                }
             }
         }
         return result;
@@ -75,14 +100,22 @@ public class SubstringWithConcatenationOfAllWords {
 
     private boolean checkSubstring(String subString, String[] words) {
         int wordLength = words[0].length();
-        List<String> wordsList = new ArrayList<>(Arrays.asList(words));
-        for (int index = 0; index < subString.length() / wordLength; index++) {
-            String possibleWord = subString.substring(index * wordLength, (index + 1) * wordLength);
-            int possibleIndex = wordsList.indexOf(possibleWord);
-            if (possibleIndex > -1) {
-                wordsList.set(possibleIndex, "");
-            } else {
-                return false;
+
+        if (wordLength == 1) {
+            for (String word : words) {
+                subString = subString.replaceFirst(word, "");
+            }
+            return subString.isEmpty();
+        } else {
+            List<String> wordsList = new ArrayList<>(Arrays.asList(words));
+            for (int index = 0; index < subString.length() / wordLength; index++) {
+                String possibleWord = subString.substring(index * wordLength, (index + 1) * wordLength);
+                int possibleIndex = wordsList.indexOf(possibleWord);
+                if (possibleIndex > -1) {
+                    wordsList.set(possibleIndex, "");
+                } else {
+                    return false;
+                }
             }
         }
         return true;

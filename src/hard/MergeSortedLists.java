@@ -8,18 +8,13 @@ public class MergeSortedLists {
         ListNode first = new ListNode(1, new ListNode(4, new ListNode(5)));
         ListNode second = new ListNode(1, new ListNode(3, new ListNode(4)));
         ListNode third = new ListNode(2, new ListNode(6));
-
         ListNode[] lists = {first, second, third};
-
         ListNode result = (new MergeSortedLists()).mergeKLists(lists);
         do {
             System.out.println(result.val);
             result = result.next;
-
-        } while (result.next != null);
-
+        } while (result != null);
     }
-
 
     /**
      * You are given an array of k linked-lists lists, each linked-list is sorted in ascending order.
@@ -57,7 +52,6 @@ public class MergeSortedLists {
         ListNode currentResultNode = null;
         while (true) {
             Integer min = null;
-
             int minIndex = -1;
             for (int i = 0; i < lists.length; i++) {
                 if (lists[i] != null) {

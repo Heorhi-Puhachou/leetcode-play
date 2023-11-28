@@ -60,6 +60,14 @@ public class SubstringWithConcatenationOfAllWords {
      */
 
     public List<Integer> findSubstring(String s, String[] words) {
+        boolean sameSymbol = s.replaceAll(s.substring(0, 1), "").isEmpty();
+        boolean sameWords = true;
+        for (int i = 0; i < words.length - 1; i++) {
+            if (!words[i].equals(words[i + 1])) {
+                sameWords = false;
+                break;
+            }
+        }
         List<Integer> result = new ArrayList<>();
         int wordLength = words[0].length();
         int substringLength = words.length * wordLength;
@@ -70,21 +78,31 @@ public class SubstringWithConcatenationOfAllWords {
         boolean previousSuccess = false;
 
         if (wordLength == 1) {
-            for (int i = 0; i <= s.length() - substringLength; i++) {
-                String toCheck = s.substring(i, i + substringLength);
-                if (previousSuccess) {
-                    if (sChars[i + substringLength - 2] == sChars[i + substringLength - 1]) {
+            if (sameSymbol && sameWords) {
+                if (s.substring(0, 1).equals(words[0])) {
+                    for (int i = 0; i < s.length() - substringLength + 1; i++) {
                         result.add(i);
+                    }
+                } else {
+                    return result;
+                }
+            } else {
+                for (int i = 0; i <= s.length() - substringLength; i++) {
+                    String toCheck = s.substring(i, i + substringLength);
+                    if (previousSuccess) {
+                        if (sChars[i + substringLength - 2] == sChars[i + substringLength - 1]) {
+                            result.add(i);
+                        } else {
+                            previousSuccess = false;
+                        }
+                    }
+
+                    if (!previousSuccess && checkSubstring(toCheck, words)) {
+                        result.add(i);
+                        previousSuccess = true;
                     } else {
                         previousSuccess = false;
                     }
-                }
-
-                if (!previousSuccess && checkSubstring(toCheck, words)) {
-                    result.add(i);
-                    previousSuccess = true;
-                } else {
-                    previousSuccess = false;
                 }
             }
         } else {

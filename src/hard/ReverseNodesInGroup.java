@@ -2,8 +2,6 @@ package hard;
 
 import utils.ListNode;
 
-import java.awt.*;
-
 public class ReverseNodesInGroup {
     public static void main(String... args) {
         //[1,2,3,4,5]

@@ -60,36 +60,42 @@ public class SubstringWithConcatenationOfAllWords {
      */
 
     public List<Integer> findSubstring(String s, String[] words) {
+        List<Integer> result = new ArrayList<>();
+        String firstWord = words[0];
+        int wordLength = firstWord.length();
         boolean sameSymbol = s.replaceAll(s.substring(0, 1), "").isEmpty();
         boolean sameWords = true;
+        int substringLength = words.length * wordLength;
+
+        if (substringLength > s.length()) {
+            return result;
+        }
+
         for (int i = 0; i < words.length - 1; i++) {
             if (!words[i].equals(words[i + 1])) {
                 sameWords = false;
                 break;
             }
         }
-        List<Integer> result = new ArrayList<>();
-        int wordLength = words[0].length();
-        int substringLength = words.length * wordLength;
-        if (substringLength > s.length()) {
-            return result;
-        }
+
         char[] sChars = s.toCharArray();
-        boolean previousSuccess = false;
 
         if (wordLength == 1) {
-            // original string like "xxxxxxx", and words like "x", "x", ..., "x"
             if (sameSymbol && sameWords) {
-                if (s.substring(0, 1).equals(words[0])) {
+                // original string like "xxxxxxx", and words like "x", "x", ..., "x"
+                if (s.substring(0, 1).equals(firstWord)) {
                     for (int i = 0; i < s.length() - substringLength + 1; i++) {
                         result.add(i);
                     }
-                } else {
+                }
+                // original string like "xxxxxxx", and words like "y", "y", ..., "y"
+                else {
                     return result;
                 }
             }
             // original string like "xyzxxzyyyxxx", and words like "x", "y", ..., "z"
             else {
+                boolean previousSuccess = false;
                 for (int i = 0; i <= s.length() - substringLength; i++) {
                     String toCheck = s.substring(i, i + substringLength);
                     if (previousSuccess) {
@@ -99,8 +105,7 @@ public class SubstringWithConcatenationOfAllWords {
                             previousSuccess = false;
                         }
                     }
-
-                    if (!previousSuccess && checkSubstring(toCheck, words)) {
+                    if (!previousSuccess && checkSubstringForMonoWord(toCheck, words)) {
                         result.add(i);
                         previousSuccess = true;
                     } else {
@@ -113,7 +118,7 @@ public class SubstringWithConcatenationOfAllWords {
         else {
             for (int i = 0; i <= s.length() - substringLength; i++) {
                 String toCheck = s.substring(i, i + substringLength);
-                if (checkSubstring(toCheck, words)) {
+                if (checkSubstring(toCheck, words, wordLength)) {
                     result.add(i);
                 }
             }
@@ -121,26 +126,25 @@ public class SubstringWithConcatenationOfAllWords {
         return result;
     }
 
-    private boolean checkSubstring(String subString, String[] words) {
-        int wordLength = words[0].length();
-
-        if (wordLength == 1) {
-            for (String word : words) {
-                subString = subString.replaceFirst(word, "");
-            }
-            return subString.isEmpty();
-        } else {
-            List<String> wordsList = new ArrayList<>(Arrays.asList(words));
-            for (int index = 0; index < subString.length() / wordLength; index++) {
-                String possibleWord = subString.substring(index * wordLength, (index + 1) * wordLength);
-                int possibleIndex = wordsList.indexOf(possibleWord);
-                if (possibleIndex > -1) {
-                    wordsList.set(possibleIndex, "");
-                } else {
-                    return false;
-                }
+    private boolean checkSubstring(String subString, String[] words, int wordLength) {
+        List<String> wordsList = new ArrayList<>(Arrays.asList(words));
+        for (int index = 0; index < subString.length() / wordLength; index++) {
+            String possibleWord = subString.substring(index * wordLength, (index + 1) * wordLength);
+            int possibleIndex = wordsList.indexOf(possibleWord);
+            if (possibleIndex > -1) {
+                // some kind of remove, but not remove
+                wordsList.set(possibleIndex, "");
+            } else {
+                return false;
             }
         }
         return true;
+    }
+
+    private boolean checkSubstringForMonoWord(String subString, String[] words) {
+        for (String word : words) {
+            subString = subString.replaceFirst(word, "");
+        }
+        return subString.isEmpty();
     }
 }

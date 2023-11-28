@@ -78,6 +78,7 @@ public class SubstringWithConcatenationOfAllWords {
         boolean previousSuccess = false;
 
         if (wordLength == 1) {
+            // original string like "xxxxxxx", and words like "x", "x", ..., "x"
             if (sameSymbol && sameWords) {
                 if (s.substring(0, 1).equals(words[0])) {
                     for (int i = 0; i < s.length() - substringLength + 1; i++) {
@@ -86,7 +87,9 @@ public class SubstringWithConcatenationOfAllWords {
                 } else {
                     return result;
                 }
-            } else {
+            }
+            // original string like "xyzxxzyyyxxx", and words like "x", "y", ..., "z"
+            else {
                 for (int i = 0; i <= s.length() - substringLength; i++) {
                     String toCheck = s.substring(i, i + substringLength);
                     if (previousSuccess) {
@@ -105,7 +108,9 @@ public class SubstringWithConcatenationOfAllWords {
                     }
                 }
             }
-        } else {
+        }
+        // original string like "xyzxxzyyyxxx", and words like "xyz", "xxz", ..., "yyy"
+        else {
             for (int i = 0; i <= s.length() - substringLength; i++) {
                 String toCheck = s.substring(i, i + substringLength);
                 if (checkSubstring(toCheck, words)) {

@@ -1,10 +1,13 @@
 package hard;
 
+import java.util.*;
+
 public class LongestValidParentheses {
 
     public static void main(String... args) {
         //System.out.println((new LongestValidParentheses()).longestValidParentheses(")()())"));
-        System.out.println((new LongestValidParentheses()).longestValidParentheses("()(()"));
+        System.out.println((new LongestValidParentheses()).longestValidParentheses("(()()(())(("));
+        //System.out.println((new LongestValidParentheses()).longestValidParentheses("()()))"));
     }
 
     /**
@@ -33,80 +36,101 @@ public class LongestValidParentheses {
      */
 
     public int longestValidParentheses(String s) {
-        if (s.equals("()")) {
-            return 2;
-        }
         if (s.length() < 2) {
             return 0;
         }
-        String trimmed = removeBadEdges(s);
-        if (trimmed.length() < 2) {
-            return 0;
-        }
-        char[] trimmedChars = trimmed.toCharArray();
-        int maxLength = 0;
-        int tempLength = 0;
-        int finishedTempLength = 0;
-        int balance = 0;
-
-        for (int i = 0; i < trimmed.length(); i++) {
-            if (trimmedChars[i] == '(') {
-                balance++;
+        if (s.length() == 2) {
+            if (s.equals("()")) {
+                return 2;
             } else {
-                balance--;
+                return 0;
             }
+        }
+        char[] string = s.toCharArray();
+        List<Integer> splitIndexes = new ArrayList<>();
+        List<Integer> splitIndexesInverted = new ArrayList<>();
+        int balanceCloseValue = 0;
+        int balanceOpenValue = 0;
 
-            if (balance < 0) {
-                finishedTempLength = tempLength;
-                if (finishedTempLength > maxLength) {
-                    maxLength = tempLength;
-                }
-                tempLength = 0;
-            } else if (balance == 0) {
-                tempLength++;
-                finishedTempLength = tempLength;
-                if (finishedTempLength > maxLength) {
-                    maxLength = finishedTempLength;
-                }
-
+        for (int i = 0; i < string.length; i++) {
+            if (string[i] == '(') {
+                balanceCloseValue++;
             } else {
-                tempLength++;
+                balanceCloseValue--;
+                if (balanceCloseValue < 0) {
+                    splitIndexes.add(i);
+                    balanceCloseValue = 0;
+                }
             }
+
+            int openIndex = string.length - i - 1;
+            if (string[openIndex] == ')') {
+                balanceOpenValue++;
+            } else {
+                balanceOpenValue--;
+                if (balanceOpenValue < 0) {
+                    splitIndexesInverted.add(openIndex);
+                    balanceOpenValue = 0;
+                }
+            }
+
+
         }
 
-        if (balance > 0) {
-            int potential = tempLength - balance;
-            if (potential > maxLength) {
-                return potential;
-            }
+        int[] resultSpit;
+        if ((splitIndexes.size() + splitIndexesInverted.size()) == 0) {
+            return s.length();
+        } else if (splitIndexes.size() == 0) {
+            resultSpit = listToInvertArray(splitIndexesInverted);
+        } else if (splitIndexesInverted.size() == 0) {
+            resultSpit = listToArray(splitIndexes);
+        } else {
+            resultSpit = mergeSortedArrays(splitIndexes, splitIndexesInverted);
         }
 
-        return maxLength;
+        int max = resultSpit[0];
+        resultSpit[resultSpit.length - 1] = s.length();
+
+        for (int i = 1; i < resultSpit.length; i++) {
+            int temp = resultSpit[i] - resultSpit[i - 1] - 1;
+            if (temp > max) {
+                max = temp;
+            }
+        }
+        return max;
     }
 
-    private String removeBadEdges(String input) {
-        char[] inputChars = input.toCharArray();
-        int startIndex = 0;
-        int endIndex = input.length();
-
-        for (int i = 0; i < input.length(); i++) {
-            if (inputChars[i] == '(') {
-                startIndex = i;
-                break;
+    public int[] mergeSortedArrays(List<Integer> nums1, List<Integer> nums2inverted) {
+        int resultLength = nums1.size() + nums2inverted.size();
+        int[] resultArray = new int[resultLength + 1];
+        int firstIndex = 0;
+        int invertedIndex = nums2inverted.size() - 1;
+        for (int i = 0; i < resultLength; i++) {
+            if ((firstIndex < nums1.size()) && (nums1.get(firstIndex) < nums2inverted.get(invertedIndex))) {
+                resultArray[i] = nums1.get(firstIndex);
+                firstIndex++;
+            } else {
+                resultArray[i] = nums2inverted.get(invertedIndex);
+                invertedIndex--;
             }
         }
 
-        for (int i = input.length() - 1; i > 0; i--) {
-            if (inputChars[i] == ')') {
-                endIndex = i;
-                break;
-            }
-        }
+        return resultArray;
+    }
 
-        if (startIndex + 1 >= endIndex) {
-            return "";
-        } else {
-            return input.substring(startIndex, endIndex + 1);
+    private int[] listToArray(List<Integer> input) {
+        int[] result = new int[input.size() + 1];
+        for (int i = 0; i < input.size(); i++) {
+            result[i] = input.get(i);
         }
+        return result;
+    }
+
+    private int[] listToInvertArray(List<Integer> input) {
+        int[] result = new int[input.size() + 1];
+        for (int i = 0; i < input.size(); i++) {
+            result[i] = input.get(input.size() - 1 - i);
+        }
+        return result;
     }
 }

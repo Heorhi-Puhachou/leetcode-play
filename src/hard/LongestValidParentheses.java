@@ -6,7 +6,7 @@ public class LongestValidParentheses {
 
     public static void main(String... args) {
         //System.out.println((new LongestValidParentheses()).longestValidParentheses(")()())"));
-        System.out.println((new LongestValidParentheses()).longestValidParentheses("(()()(())(("));
+        System.out.println((new LongestValidParentheses()).longestValidParentheses("(()()("));
         //System.out.println((new LongestValidParentheses()).longestValidParentheses("()()))"));
     }
 
@@ -36,63 +36,57 @@ public class LongestValidParentheses {
      */
 
     public int longestValidParentheses(String s) {
-        if (s.length() < 2) {
-            return 0;
-        }
-        if (s.length() == 2) {
-            if (s.equals("()")) {
-                return 2;
-            } else {
-                return 0;
-            }
-        }
+        int originalLength = s.length();
         char[] string = s.toCharArray();
-        List<Integer> splitIndexes = new ArrayList<>();
-        List<Integer> splitIndexesInverted = new ArrayList<>();
+        List<Integer> splitIndexes = new ArrayList<>(originalLength);
+        List<Integer> splitIndexesInverted = new ArrayList<>(originalLength);
         int balanceCloseValue = 0;
         int balanceOpenValue = 0;
 
-        for (int i = 0; i < string.length; i++) {
-            if (string[i] == '(') {
+        for (int openIndex = 0, closeIndex = originalLength - 1;
+             openIndex < originalLength;
+             openIndex++, closeIndex--) {
+
+            // find bad '('
+            if (string[openIndex] == '(') {
                 balanceCloseValue++;
             } else {
                 balanceCloseValue--;
                 if (balanceCloseValue < 0) {
-                    splitIndexes.add(i);
+                    splitIndexes.add(openIndex);
                     balanceCloseValue = 0;
                 }
             }
 
-            int openIndex = string.length - i - 1;
-            if (string[openIndex] == ')') {
+            // find bad ')'
+            if (string[closeIndex] == ')') {
                 balanceOpenValue++;
             } else {
                 balanceOpenValue--;
                 if (balanceOpenValue < 0) {
-                    splitIndexesInverted.add(openIndex);
+                    splitIndexesInverted.add(closeIndex);
                     balanceOpenValue = 0;
                 }
             }
-
-
         }
 
-        int[] resultSpit;
-        if ((splitIndexes.size() + splitIndexesInverted.size()) == 0) {
-            return s.length();
-        } else if (splitIndexes.size() == 0) {
-            resultSpit = listToInvertArray(splitIndexesInverted);
-        } else if (splitIndexesInverted.size() == 0) {
-            resultSpit = listToArray(splitIndexes);
+        if (splitIndexes.isEmpty() && splitIndexesInverted.isEmpty()) {
+            return originalLength;
+        }
+
+        int[] resultSplit;
+
+        if (splitIndexes.isEmpty()) {
+            resultSplit = listToReversedArray(splitIndexesInverted);
+        } else if (splitIndexesInverted.isEmpty()) {
+            resultSplit = listToArray(splitIndexes);
         } else {
-            resultSpit = mergeSortedArrays(splitIndexes, splitIndexesInverted);
+            resultSplit = mergeSortedAscAndDescArrays(splitIndexes, splitIndexesInverted);
         }
-
-        int max = resultSpit[0];
-        resultSpit[resultSpit.length - 1] = s.length();
-
-        for (int i = 1; i < resultSpit.length; i++) {
-            int temp = resultSpit[i] - resultSpit[i - 1] - 1;
+        int max = resultSplit[0];
+        resultSplit[resultSplit.length - 1] = originalLength;
+        for (int i = 1; i < resultSplit.length; i++) {
+            int temp = resultSplit[i] - resultSplit[i - 1] - 1;
             if (temp > max) {
                 max = temp;
             }
@@ -100,8 +94,9 @@ public class LongestValidParentheses {
         return max;
     }
 
-    public int[] mergeSortedArrays(List<Integer> nums1, List<Integer> nums2inverted) {
+    public int[] mergeSortedAscAndDescArrays(List<Integer> nums1, List<Integer> nums2inverted) {
         int resultLength = nums1.size() + nums2inverted.size();
+        // +1 for last range element
         int[] resultArray = new int[resultLength + 1];
         int firstIndex = 0;
         int invertedIndex = nums2inverted.size() - 1;
@@ -114,11 +109,11 @@ public class LongestValidParentheses {
                 invertedIndex--;
             }
         }
-
         return resultArray;
     }
 
     private int[] listToArray(List<Integer> input) {
+        // +1 for last range element
         int[] result = new int[input.size() + 1];
         for (int i = 0; i < input.size(); i++) {
             result[i] = input.get(i);
@@ -126,10 +121,19 @@ public class LongestValidParentheses {
         return result;
     }
 
-    private int[] listToInvertArray(List<Integer> input) {
-        int[] result = new int[input.size() + 1];
-        for (int i = 0; i < input.size(); i++) {
-            result[i] = input.get(input.size() - 1 - i);
+    private int[] listToReversedArray(List<Integer> input) {
+        int[] result = listToArray(input);
+        int half = (input.size()) / 2;
+        // swap values
+        // a = a ^ b;  // a = 1111 (15)
+        // b = a ^ b;  // b = 1010 (5)
+        // a = a ^ b;  // a = 0101 (10)
+        for (int first = 0, last = input.size() - 1;
+             first < half;
+             first++, last--) {
+            result[first] = result[last] ^ result[first];
+            result[last] = result[first] ^ result[last];
+            result[first] = result[first] ^ result[last];
         }
         return result;
     }

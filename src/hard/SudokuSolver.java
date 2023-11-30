@@ -31,7 +31,7 @@ public class SudokuSolver {
             System.out.println(line);
         }
         Date endTime = new Date();
-        System.out.println("\n\nms time: " + (endTime.getTime() - startTime.getTime()));
+        System.out.println("\n\n ms time: " + (endTime.getTime() - startTime.getTime()));
     }
 
     /**
@@ -56,11 +56,15 @@ public class SudokuSolver {
     record VariantBoardValue(int row, int column, char value) {
     }
 
+    record MinRoundabout(int pathQuantity, List<VariantBoardValue> cells) {
+    }
+
     static class VariantBoard {
         private boolean finished;
         private final char[][] board;
 
         public VariantBoard(char[][] originalBoard) {
+            this.finished = false;
             this.board = new char[9][9];
             for (int row = 0; row < 9; row++) {
                 System.arraycopy(originalBoard[row], 0, board[row], 0, 9);
@@ -86,8 +90,8 @@ public class SudokuSolver {
     }
 
 
-    private List<VariantBoardValue> findMinRoundabout(char[][] board) {
-        int minRoundAbout = 8;
+    private MinRoundabout findMinRoundabout(char[][] board) {
+        int minRoundAbout = 10;
         List<VariantBoardValue> variants = new ArrayList<>();
         Set<Character> lockedValues = new HashSet<>();
 
@@ -99,7 +103,7 @@ public class SudokuSolver {
                     checkRow(lockedValues, board[row]);
                     checkColumn(lockedValues, board, column);
                     checkSquare(lockedValues, board, row, column);
-                    if (9 - lockedValues.size() < minRoundAbout) {
+                    if (9 - lockedValues.size() <= minRoundAbout) {
                         minRoundAbout = 9 - lockedValues.size();
                         variants.clear();
                         for (Character number : NUMBERS) {
@@ -107,60 +111,54 @@ public class SudokuSolver {
                                 variants.add(new VariantBoardValue(row, column, number));
                             }
                         }
+                        if (minRoundAbout == 1) {
+                            return new MinRoundabout(minRoundAbout, variants);
+                        }
                     }
                 }
             }
         }
-        return variants;
+        return new MinRoundabout(minRoundAbout, variants);
+    }
+
+    private boolean isFinished(char[][] board) {
+        for (int row = 0; row < 9; row++) {
+            for (int column = 0; column < 9; column++) {
+                char symbol = board[row][column];
+                if (symbol == '.') {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private VariantBoard tryFillBoard(VariantBoard variantBoard, VariantBoardValue additionalValue) {
-        if (additionalValue != null) {
-            variantBoard.getBoard()[additionalValue.row()][additionalValue.column()] = additionalValue.value();
-        }
         char[][] board = variantBoard.getBoard();
-        Set<Character> lockedValues = new HashSet<>();
-        while (true) {
-            boolean updated = false;
-            int unfinished = 0;
-            for (int row = 0; row < 9; row++) {
-                for (int column = 0; column < 9; column++) {
-                    char symbol = board[row][column];
-                    if (symbol == '.') {
-                        lockedValues.clear();
-                        checkRow(lockedValues, board[row]);
-                        checkColumn(lockedValues, board, column);
-                        checkSquare(lockedValues, board, row, column);
-                        if (lockedValues.size() == 9) {
-                            return variantBoard;
-                        }
-                        if (lockedValues.size() == 8) {
-                            board[row][column] = getUnlockedValue(lockedValues);
-                            updated = true;
-                        } else {
-                            unfinished++;
-                        }
-                    }
-                }
-            }
-            if (unfinished == 0) {
-                variantBoard.markAsFinished();
-                return variantBoard;
-            }
+        if (additionalValue != null) {
+            board[additionalValue.row()][additionalValue.column()] = additionalValue.value();
+        }
 
+        MinRoundabout minRoundabout = findMinRoundabout(board);
 
-            if (!updated) {
-                // find min variants
-                List<VariantBoardValue> variants = findMinRoundabout(board);
+        if (minRoundabout.cells.isEmpty() && isFinished(variantBoard.getBoard())) {
+            variantBoard.markAsFinished();
+            return variantBoard;
+        }
 
-                for (VariantBoardValue variantBoardValue : variants) {
-                    VariantBoard tempVariantBoard = tryFillBoard(new VariantBoard(board), variantBoardValue);
-                    if (tempVariantBoard.finished) {
-                        return tempVariantBoard;
-                    }
+        if (minRoundabout.pathQuantity == 1) {
+            VariantBoardValue variantBoardValue = minRoundabout.cells.get(0);
+            board[variantBoardValue.row][variantBoardValue.column] = variantBoardValue.value;
+            return tryFillBoard(new VariantBoard(board), null);
+        } else {
+            for (VariantBoardValue variantBoardValue : minRoundabout.cells) {
+                VariantBoard tempVariantBoard = tryFillBoard(new VariantBoard(board), variantBoardValue);
+                if (tempVariantBoard.finished) {
+                    return tempVariantBoard;
                 }
             }
         }
+        return variantBoard;
     }
 
     private void checkRow(Set<Character> lockedValues, char[] row) {

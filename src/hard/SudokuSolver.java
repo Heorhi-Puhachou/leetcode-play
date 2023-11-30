@@ -1,20 +1,32 @@
 package hard;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class SudokuSolver {
     public static void main(String... args) {
+//        char[][] board = {
+//                {'5', '3', '.', '.', '7', '.', '.', '.', '.'},
+//                {'6', '.', '.', '1', '9', '5', '.', '.', '.'},
+//                {'.', '9', '8', '.', '.', '.', '.', '6', '.'},
+//                {'8', '.', '.', '.', '6', '.', '.', '.', '3'},
+//                {'4', '.', '.', '8', '.', '3', '.', '.', '1'},
+//                {'7', '.', '.', '.', '2', '.', '.', '.', '6'},
+//                {'.', '6', '.', '.', '.', '.', '2', '8', '.'},
+//                {'.', '.', '.', '4', '1', '9', '.', '.', '5'},
+//                {'.', '.', '.', '.', '8', '.', '.', '7', '9'}};
+
         char[][] board = {
-                {'5', '3', '.', '.', '7', '.', '.', '.', '.'},
-                {'6', '.', '.', '1', '9', '5', '.', '.', '.'},
-                {'.', '9', '8', '.', '.', '.', '.', '6', '.'},
-                {'8', '.', '.', '.', '6', '.', '.', '.', '3'},
-                {'4', '.', '.', '8', '.', '3', '.', '.', '1'},
-                {'7', '.', '.', '.', '2', '.', '.', '.', '6'},
-                {'.', '6', '.', '.', '.', '.', '2', '8', '.'},
-                {'.', '.', '.', '4', '1', '9', '.', '.', '5'},
-                {'.', '.', '.', '.', '8', '.', '.', '7', '9'}};
+                {'.', '.', '9', '7', '4', '8', '.', '.', '.'},
+                {'7', '.', '.', '.', '.', '.', '.', '.', '.'},
+                {'.', '2', '.', '1', '.', '9', '.', '.', '.'},
+                {'.', '.', '7', '.', '.', '.', '2', '4', '.'},
+                {'.', '6', '4', '.', '1', '.', '5', '9', '.'},
+                {'.', '9', '8', '.', '.', '.', '3', '.', '.'},
+                {'.', '.', '.', '8', '.', '3', '.', '.', '.'},
+                {'.', '.', '.', '.', '.', '.', '.', '.', '6'},
+                {'.', '.', '.', '2', '7', '5', '9', '.', '.'}};
         new SudokuSolver().solveSudoku(board);
         for (char[] line : board) {
             System.out.println(line);
@@ -38,29 +50,117 @@ public class SudokuSolver {
      * Output:        [["5","3","4","6","7","8","9","1","2"],["6","7","2","1","9","5","3","4","8"],["1","9","8","3","4","2","5","6","7"],["8","5","9","7","6","1","4","2","3"],["4","2","6","8","5","3","7","9","1"],["7","1","3","9","2","4","8","5","6"],["9","6","1","5","3","7","2","8","4"],["2","8","7","4","1","9","6","3","5"],["3","4","5","2","8","6","1","7","9"]]
      */
 
+    record VariantBoardValue(int row, int column, char value) {
+    }
+
+    static class VariantBoard {
+        private boolean finished;
+        private final char[][] board;
+
+        public VariantBoard(char[][] originalBoard) {
+            this.board = new char[9][9];
+            for (int row = 0; row < 9; row++) {
+                System.arraycopy(originalBoard[row], 0, board[row], 0, 9);
+            }
+        }
+
+        public void markAsFinished() {
+            this.finished = true;
+        }
+
+        public char[][] getBoard() {
+            return board;
+        }
+    }
 
     public void solveSudoku(char[][] board) {
+        VariantBoard result = tryFillBoard(new VariantBoard(board), null);
+        for (int row = 0; row < 9; row++) {
+            for (int column = 0; column < 9; column++) {
+                board[row][column] = result.getBoard()[row][column];
+            }
+        }
+    }
+
+
+    private List<VariantBoardValue> findMinRoundabout(char[][] board) {
+        int minRoundAbout = 8;
+        List<VariantBoardValue> variants = new ArrayList<>();
+
         for (int row = 0; row < 9; row++) {
             for (int column = 0; column < 9; column++) {
                 char symbol = board[row][column];
                 if (symbol == '.') {
                     List<Character> available = Arrays.asList('1', '2', '3', '4', '5', '6', '7', '8', '9');
-                    checkRow(available, board, row);
+                    checkRow(available, board[row]);
                     checkColumn(available, board, column);
                     checkSquare(available, board, row, column);
                     available = available.stream().filter(el -> el != '.').toList();
-                    if (available.size() == 1) {
-                        System.out.println(available);
-                        System.out.println("" + row + "-" + column + ": " + board[row][column]);
+                    if (available.size() < minRoundAbout) {
+                        minRoundAbout = available.size();
+                        variants.clear();
+                        for (Character availableValue : available) {
+                            variants.add(new VariantBoardValue(row, column, availableValue));
+                        }
+                    }
+                }
+            }
+        }
+        return variants;
+    }
+
+    private VariantBoard tryFillBoard(VariantBoard variantBoard, VariantBoardValue additionalValue) {
+        if (additionalValue != null) {
+            variantBoard.getBoard()[additionalValue.row()][additionalValue.column()] = additionalValue.value();
+        }
+        char[][] board = variantBoard.getBoard();
+        while (true) {
+            boolean updated = false;
+            int unfinished = 0;
+            for (int row = 0; row < 9; row++) {
+                for (int column = 0; column < 9; column++) {
+                    char symbol = board[row][column];
+                    if (symbol == '.') {
+                        List<Character> available = Arrays.asList('1', '2', '3', '4', '5', '6', '7', '8', '9');
+                        checkRow(available, board[row]);
+                        checkColumn(available, board, column);
+                        checkSquare(available, board, row, column);
+                        available = available.stream().filter(el -> el != '.').toList();
+                        if (available.size() == 0) {
+                            return variantBoard;
+                        }
+                        if (available.size() == 1) {
+                            board[row][column] = available.get(0);
+                            updated = true;
+                        } else {
+                            unfinished++;
+                        }
+                    }
+                }
+            }
+            if (unfinished == 0) {
+                variantBoard.markAsFinished();
+                return variantBoard;
+            }
+
+
+            if (!updated) {
+                // find min variants
+                List<VariantBoardValue> variants = findMinRoundabout(board);
+
+                for (VariantBoardValue variantBoardValue : variants) {
+                    VariantBoard tempVariantBoard = tryFillBoard(new VariantBoard(board), variantBoardValue);
+                    if (tempVariantBoard.finished) {
+                        return tempVariantBoard;
                     }
                 }
             }
         }
     }
 
-    private void checkRow(List<Character> available, char[][] board, int rowIndex) {
+    private void checkRow(List<Character> available, char[] row) {
         for (int column = 0; column < 9; column++) {
-            char symbol = board[rowIndex][column];
+            char symbol = row[column];
             int availableIndex = available.indexOf(symbol);
             if (availableIndex >= 0) {
                 available.set(availableIndex, '.');

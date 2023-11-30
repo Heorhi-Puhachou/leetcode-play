@@ -81,7 +81,7 @@ public class SudokuSolver {
     }
 
     public void solveSudoku(char[][] board) {
-        VariantBoard result = tryFillBoard(new VariantBoard(board), null);
+        VariantBoard result = tryFillBoard(new VariantBoard(board));
         for (int row = 0; row < 9; row++) {
             for (int column = 0; column < 9; column++) {
                 board[row][column] = result.getBoard()[row][column];
@@ -131,12 +131,8 @@ public class SudokuSolver {
         return true;
     }
 
-    private VariantBoard tryFillBoard(VariantBoard variantBoard, VariantBoardValue additionalValue) {
+    private VariantBoard tryFillBoard(VariantBoard variantBoard) {
         char[][] board = variantBoard.getBoard();
-        if (additionalValue != null) {
-            board[additionalValue.row()][additionalValue.column()] = additionalValue.value();
-        }
-
         MinRoundabout minRoundabout = findMinRoundabout(board);
 
         if (minRoundabout.cells.isEmpty() && isFinished(variantBoard.getBoard())) {
@@ -147,10 +143,11 @@ public class SudokuSolver {
         if (minRoundabout.pathQuantity == 1) {
             VariantBoardValue variantBoardValue = minRoundabout.cells.get(0);
             board[variantBoardValue.row][variantBoardValue.column] = variantBoardValue.value;
-            return tryFillBoard(new VariantBoard(board), null);
+            return tryFillBoard(new VariantBoard(board));
         } else {
             for (VariantBoardValue variantBoardValue : minRoundabout.cells) {
-                VariantBoard tempVariantBoard = tryFillBoard(new VariantBoard(board), variantBoardValue);
+                variantBoard.getBoard()[variantBoardValue.row()][variantBoardValue.column()] = variantBoardValue.value();
+                VariantBoard tempVariantBoard = tryFillBoard(new VariantBoard(board));
                 if (tempVariantBoard.finished) {
                     return tempVariantBoard;
                 }

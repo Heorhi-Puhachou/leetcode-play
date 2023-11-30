@@ -1,8 +1,6 @@
 package hard;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class SudokuSolver {
     public static void main(String... args) {
@@ -50,6 +48,8 @@ public class SudokuSolver {
      * Output:        [["5","3","4","6","7","8","9","1","2"],["6","7","2","1","9","5","3","4","8"],["1","9","8","3","4","2","5","6","7"],["8","5","9","7","6","1","4","2","3"],["4","2","6","8","5","3","7","9","1"],["7","1","3","9","2","4","8","5","6"],["9","6","1","5","3","7","2","8","4"],["2","8","7","4","1","9","6","3","5"],["3","4","5","2","8","6","1","7","9"]]
      */
 
+    private static final Set<Character> NUMBERS = new HashSet<>(Arrays.asList('1', '2', '3', '4', '5', '6', '7', '8', '9'));
+
     record VariantBoardValue(int row, int column, char value) {
     }
 
@@ -86,21 +86,23 @@ public class SudokuSolver {
     private List<VariantBoardValue> findMinRoundabout(char[][] board) {
         int minRoundAbout = 8;
         List<VariantBoardValue> variants = new ArrayList<>();
+        Set<Character> lockedValues = new HashSet<>();
 
         for (int row = 0; row < 9; row++) {
             for (int column = 0; column < 9; column++) {
                 char symbol = board[row][column];
                 if (symbol == '.') {
-                    List<Character> available = Arrays.asList('1', '2', '3', '4', '5', '6', '7', '8', '9');
-                    checkRow(available, board[row]);
-                    checkColumn(available, board, column);
-                    checkSquare(available, board, row, column);
-                    available = available.stream().filter(el -> el != '.').toList();
-                    if (available.size() < minRoundAbout) {
-                        minRoundAbout = available.size();
+                    lockedValues.clear();
+                    checkRow(lockedValues, board[row]);
+                    checkColumn(lockedValues, board, column);
+                    checkSquare(lockedValues, board, row, column);
+                    if (9 - lockedValues.size() < minRoundAbout) {
+                        minRoundAbout = 9 - lockedValues.size();
                         variants.clear();
-                        for (Character availableValue : available) {
-                            variants.add(new VariantBoardValue(row, column, availableValue));
+                        for (Character number : NUMBERS) {
+                            if (!lockedValues.contains(number)) {
+                                variants.add(new VariantBoardValue(row, column, number));
+                            }
                         }
                     }
                 }
@@ -114,6 +116,7 @@ public class SudokuSolver {
             variantBoard.getBoard()[additionalValue.row()][additionalValue.column()] = additionalValue.value();
         }
         char[][] board = variantBoard.getBoard();
+        Set<Character> lockedValues = new HashSet<>();
         while (true) {
             boolean updated = false;
             int unfinished = 0;
@@ -121,16 +124,15 @@ public class SudokuSolver {
                 for (int column = 0; column < 9; column++) {
                     char symbol = board[row][column];
                     if (symbol == '.') {
-                        List<Character> available = Arrays.asList('1', '2', '3', '4', '5', '6', '7', '8', '9');
-                        checkRow(available, board[row]);
-                        checkColumn(available, board, column);
-                        checkSquare(available, board, row, column);
-                        available = available.stream().filter(el -> el != '.').toList();
-                        if (available.size() == 0) {
+                        lockedValues.clear();
+                        checkRow(lockedValues, board[row]);
+                        checkColumn(lockedValues, board, column);
+                        checkSquare(lockedValues, board, row, column);
+                        if (lockedValues.size() == 9) {
                             return variantBoard;
                         }
-                        if (available.size() == 1) {
-                            board[row][column] = available.get(0);
+                        if (lockedValues.size() == 8) {
+                            board[row][column] = getUnlockedValue(lockedValues);
                             updated = true;
                         } else {
                             unfinished++;
@@ -158,27 +160,25 @@ public class SudokuSolver {
         }
     }
 
-    private void checkRow(List<Character> available, char[] row) {
+    private void checkRow(Set<Character> lockedValues, char[] row) {
         for (int column = 0; column < 9; column++) {
             char symbol = row[column];
-            int availableIndex = available.indexOf(symbol);
-            if (availableIndex >= 0) {
-                available.set(availableIndex, '.');
+            if (symbol != '.') {
+                lockedValues.add(symbol);
             }
         }
     }
 
-    private void checkColumn(List<Character> available, char[][] board, int columnIndex) {
+    private void checkColumn(Set<Character> lockedValues, char[][] board, int columnIndex) {
         for (int row = 0; row < 9; row++) {
             char symbol = board[row][columnIndex];
-            int availableIndex = available.indexOf(symbol);
-            if (availableIndex >= 0) {
-                available.set(availableIndex, '.');
+            if (symbol != '.') {
+                lockedValues.add(symbol);
             }
         }
     }
 
-    private void checkSquare(List<Character> available, char[][] board, int rowIndex, int columnIndex) {
+    private void checkSquare(Set<Character> lockedValues, char[][] board, int rowIndex, int columnIndex) {
         int rowStart = (rowIndex / 3) * 3;
         int rowEnd = (rowIndex / 3 + 1) * 3;
 
@@ -188,11 +188,19 @@ public class SudokuSolver {
         for (int row = rowStart; row < rowEnd; row++) {
             for (int column = columnStart; column < columnEnd; column++) {
                 char symbol = board[row][column];
-                int availableIndex = available.indexOf(symbol);
-                if (availableIndex >= 0) {
-                    available.set(availableIndex, '.');
+                if (symbol != '.') {
+                    lockedValues.add(symbol);
                 }
             }
         }
+    }
+
+    private char getUnlockedValue(Set<Character> lockedValues) {
+        for (char number : NUMBERS) {
+            if (!lockedValues.contains(number)) {
+                return number;
+            }
+        }
+        return '.';
     }
 }

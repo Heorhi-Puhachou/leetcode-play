@@ -4,6 +4,7 @@ import java.util.*;
 
 public class SudokuSolver {
     public static void main(String... args) {
+        Date startTime = new Date();
 //        char[][] board = {
 //                {'5', '3', '.', '.', '7', '.', '.', '.', '.'},
 //                {'6', '.', '.', '1', '9', '5', '.', '.', '.'},
@@ -29,6 +30,8 @@ public class SudokuSolver {
         for (char[] line : board) {
             System.out.println(line);
         }
+        Date endTime = new Date();
+        System.out.println("\n\nms time: " + (endTime.getTime() - startTime.getTime()));
     }
 
     /**

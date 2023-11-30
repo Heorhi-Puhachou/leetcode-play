@@ -31,7 +31,7 @@ public class SudokuSolver {
             System.out.println(line);
         }
         Date endTime = new Date();
-        System.out.println("\n\n ms time: " + (endTime.getTime() - startTime.getTime()));
+        System.out.println("\n\nms time: " + (endTime.getTime() - startTime.getTime()));
     }
 
     /**
@@ -89,7 +89,6 @@ public class SudokuSolver {
         }
     }
 
-
     private MinRoundabout findMinRoundabout(char[][] board) {
         int minRoundAbout = 10;
         List<VariantBoardValue> variants = new ArrayList<>();
@@ -124,8 +123,7 @@ public class SudokuSolver {
     private boolean isFinished(char[][] board) {
         for (int row = 0; row < 9; row++) {
             for (int column = 0; column < 9; column++) {
-                char symbol = board[row][column];
-                if (symbol == '.') {
+                if (board[row][column] == '.') {
                     return false;
                 }
             }
@@ -194,14 +192,5 @@ public class SudokuSolver {
                 }
             }
         }
-    }
-
-    private char getUnlockedValue(Set<Character> lockedValues) {
-        for (char number : NUMBERS) {
-            if (!lockedValues.contains(number)) {
-                return number;
-            }
-        }
-        return '.';
     }
 }

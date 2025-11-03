@@ -24,14 +24,7 @@ public class LetterCombinationsOfAPhoneNumber {
             9, Arrays.asList("w", "x", "y", "z")
     );
 
-    private class Node {
-        Node(Node parent, String symbol) {
-            this.parent = parent;
-            this.symbol = symbol;
-        }
-
-        Node parent;
-        String symbol;
+    record Node(Node parent, String symbol) {
     }
 
     public List<String> letterCombinations(String digits) {

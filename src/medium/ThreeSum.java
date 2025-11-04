@@ -5,59 +5,21 @@ import java.util.*;
 public class ThreeSum {
 
     public List<List<Integer>> threeSum(int[] nums) {
-
-        HashSet<List<Integer>> triples = new HashSet<>();
-        Set<Integer> uniqueNumbers = new HashSet<>();
-        HashSet<Integer> duplicates = new HashSet<>();
-        boolean hasThreeZeros = false;
-
-        //optimization
-
-        for (int number : nums) {
-
-            if (uniqueNumbers.contains(number)) {
-                if (number == 0 && duplicates.contains(number)) {
-                    hasThreeZeros = true;
-                } else {
-                    duplicates.add(number);
-                }
-            } else {
-                uniqueNumbers.add(number);
-            }
-
-        }
-
-        duplicates.remove(0);
-
-        if (hasThreeZeros) {
-            triples.add(Arrays.asList(0, 0, 0));
-        }
-
-        for (int duplicate : duplicates) {
-            if (uniqueNumbers.contains(duplicate * -2)) {
-                if (duplicate > 0) {
-                    triples.add(Arrays.asList(-2 * duplicate, duplicate, duplicate));
-                } else {
-                    triples.add(Arrays.asList(duplicate, duplicate, -2 * duplicate));
-                }
-            }
-        }
-
-        int[] optimizedArray = uniqueNumbers.stream()
-                .mapToInt(Integer::intValue)
-                .sorted()
-                .toArray();
-
-        for (int baseNumIndex = 0; baseNumIndex < optimizedArray.length; baseNumIndex++) {
-            int left = baseNumIndex + 1;
-            int right = optimizedArray.length - 1;
+        Arrays.sort(nums);
+        int numsLength = nums.length;
+        List<List<Integer>> result = new ArrayList<>();
+        for (int i = 0; i < numsLength - 2; i++) {
+            if (i > 0 && nums[i] == nums[i - 1]) continue;
+            int left = i + 1;
+            int right = numsLength - 1;
             while (left < right) {
-                int sum = optimizedArray[baseNumIndex] + optimizedArray[left] + optimizedArray[right];
+                int sum = nums[i] + nums[left] + nums[right];
                 if (sum == 0) {
-                    List<Integer> option = Arrays.asList(optimizedArray[baseNumIndex], optimizedArray[left], optimizedArray[right]);
-                    triples.add(option);
+                    result.add(Arrays.asList(nums[i], nums[left], nums[right]));
                     left++;
                     right--;
+                    while (nums[left - 1] == nums[left] && left < right) left++;
+                    while (nums[right + 1] == nums[right] && left < right) right--;
                 } else if (sum < 0) {
                     left++;
                 } else {
@@ -65,9 +27,7 @@ public class ThreeSum {
                 }
             }
         }
-
-        return new ArrayList<>(triples);
-
+        return result;
     }
 
     public static void main(String[] args) {
